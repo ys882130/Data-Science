@@ -1,0 +1,170 @@
+---
+title: "Project 1"
+output: html_document
+---
+
+In this project we have carried out the analysis of data of personal activity monitoring device of an individual. The data from this device was taken from the month of October to November 2012 at an interval of every 5 minutes. The data is in the link <https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip>. Various steps for the analysis are as following. 
+
+<h3> <font color = "maroon"> Loading and pre-processing data</font> </h3>
+
+<h4> <font color = "blue">  Part 1. </font></h4>
+
+The zip file was downloaded from the link and the csv file was extracted into the R working directory.
+ The code for loading the file into R is as follows:
+
+```{r}
+raw_data <- read.csv("activity.csv")
+```
+
+<h4> <font color = "blue"> Part 2.</font> </h4>
+
+In order to make the analysis on the data easier the raw data was then segregated upon the dates, using the split command. The code is as follows.   
+
+```{r}
+activity_data <- (split(raw_data$steps, raw_data$date, drop = FALSE))
+```
+
+<h3> <font color = "maroon">Number of steps taken per day </font> </h3>
+
+<h4> <font color = "blue">  Part 1. </font></h4>
+
+The sum of the number of steps for various days was found out by sapply command the code is as follows. 
+
+```{r}
+sapply(activity_data[1:61], sum)
+```
+
+<h4> <font color = "blue">  Part 2. </font></h4>
+
+The histogram for the data was then drawn using the following code.
+
+```{r}
+hist(sapply(activity_data[1:61], sum), breaks = 20, col = "Pink", main = "Histogram of number of steps", xlab = "Number of steps")
+```
+
+<h4> <font color = "blue">  Part 3. </font> </h4>
+
+The mean number of steps in a day was calculated using the following code,
+
+```{r}
+mean(sapply(activity_data[1:61], sum), na.rm = TRUE)
+```
+
+Median was calculated by the code,
+
+```{r}
+median(sapply(activity_data[1:61], sum), na.rm = TRUE)
+```
+
+<h3> <font color = "maroon">Average daily activity pattern </font></h3>
+
+<h4> <font color = "blue">  Part 1. </font></h4>
+
+The graph for the average number of steps taken per interval was plotted using the following code
+
+```{r}
+interval_data<- aggregate(raw_data$steps~raw_data$interval, FUN = mean)
+plot(interval_data$`raw_data$interval`, interval_data$`raw_data$steps`, 
+     pch = 19, type = "b", col = "Pink", xlab = "Interval", ylab = "Average Steps", main = "Plot for average steps per interval")
+```
+
+<h4>  <font color = "blue">Part 2. </font></h4>
+
+The 5 minutes interval in which the maximum numbers of steps were taken is given by,
+
+```{r}
+interval_data[interval_data$`raw_data$steps`==  max(interval_data$`raw_data$steps`),]
+```
+
+
+
+<h3> <font color = "maroon"> Imputing missing values </font></h3>
+
+<h4>  <font color = "blue">Part 1. </font></h4>
+
+The number of the missing values for the dataset will be given by the code,  
+
+```{r}
+nrow(raw_data[is.na(raw_data$steps),])
+
+```
+
+<h4>  <font color = "blue">Part 2. </font></h4>
+
+We have approximated the <r>NA</r> values to be equal to the mean of the number of steps taken in an interval. Therefore, <r>NA's</r> will be equal to,
+
+```{r}
+mean(raw_data$steps, na.rm = TRUE)
+```
+
+<h4>  <font color = "blue"> Part 3. </font></h4>
+
+Replacing the value <r> NA </r> with the mean steps in the original dataset, we get the new data set as, 
+
+```{r}
+new_data<- raw_data
+new_data$steps[is.na(new_data$steps)] <- mean(new_data$steps, na.rm = TRUE)
+head(new_data)
+```
+
+<h4><font color = "blue">  Part 4.</font></h4>
+
+The histogram of the new data set is as follows, 
+
+```{r}
+new_activity_data <- (split(new_data$steps, new_data$date, drop = FALSE))
+sapply(new_activity_data[1:61], sum)
+hist(sapply(new_activity_data[1:61], sum), breaks = 20, col = "Pink", main = "Histogram of number of steps", xlab = "Number of steps")
+```
+
+The mean and median for the new data set will be given by,
+
+```{r}
+mean(sapply(new_activity_data[1:61], sum), na.rm = TRUE)
+median(sapply(new_activity_data[1:61], sum), na.rm = TRUE)
+
+```
+
+<h3> <font color = "maroon">Difference between weekends and weekdays</font></h3>
+
+<h4>  <font color = "blue">Part 1.</font></h4>
+
+Whether the day is weekday or weekend was determined by the following code.
+
+```{r}
+daytype <- function(date) {
+  if (weekdays(as.Date(date)) %in% c("Saturday", "Sunday")) {
+    "weekend"
+  } else {
+    "weekday"
+  }
+}
+new_data$daytype <- as.factor(sapply(new_data$date, daytype))
+
+head(new_data)
+```
+
+
+<h4>  <font color = "blue">Part 2.</font></h4>
+
+The plot for the number of steps taken on the weekend and weekday was drawn using the following code. 
+
+```{r}
+weekday_data <- aggregate(new_data[new_data$daytype == "weekday", ]$steps~new_data[new_data$daytype == "weekday", ]$interval, FUN = mean)
+weekend_data <- aggregate(new_data[new_data$daytype == "weekend", ]$steps~new_data[new_data$daytype == "weekend", ]$interval, FUN = mean)
+
+par(mfcol = c(2,1))
+plot(weekday_data$`new_data[new_data$daytype == "weekday", ]$interval`, weekday_data$`new_data[new_data$daytype == "weekday", ]$steps`,pch = 19, type = "b", col = "Pink", xlab = "Interval", ylab = "Average Steps", main = "Plot for average steps per interval on week day")
+plot(weekend_data$`new_data[new_data$daytype == "weekend", ]$interval`, weekend_data$`new_data[new_data$daytype == "weekend", ]$steps`, pch = 19, type = "b", col = "Pink", xlab = "Interval", ylab = "Average Steps", main = "Plot for average steps per interval on week end")
+```
+
+
+
+
+
+
+
+
+
+
+
