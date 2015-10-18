@@ -28,7 +28,7 @@ activity_data <- (split(raw_data$steps, raw_data$date, drop = FALSE))
 
 <h4> <font color = "blue">  Part 1. </font></h4>
 
-The sum of the number of steps for various days was found out by sapply command the code is as follows. 
+The sum of the number of steps for various days was found out by sapply command the code is as follows,
 
 ```{r}
 sapply(activity_data[1:61], sum)
@@ -129,7 +129,7 @@ median(sapply(new_activity_data[1:61], sum), na.rm = TRUE)
 
 <h4>  <font color = "blue">Part 1.</font></h4>
 
-Whether the day is weekday or weekend was determined by the following code.
+Whether the day is weekday or weekend, was determined by the following code,
 
 ```{r}
 daytype <- function(date) {
